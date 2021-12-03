@@ -2,20 +2,6 @@ import * as fs from 'fs/promises';
 
 const inputData = (await fs.readFile('./data/input.csv', { encoding: 'UTF-8' })).split('\r\n');
 
-let count1 = Array(inputData[0].length).fill(0);
-let count0 = Array(inputData[0].length).fill(0);
-for (let row of inputData) {
-  for (let [idx, char] of Array.from(row).entries()) {
-    count1[idx] += char == 1 ? 1 : 0;
-    count0[idx] += char == 0 ? 1 : 0;
-  }
-}
-const mostCommonValue = count1.map((colSum, index) => colSum >= count0[index] ? 1 : 0);
-const gammaRate = binArrToDec(mostCommonValue);
-const leastCommonValue = count1.map((colSum, index) => colSum < count0[index] ? 1 : 0);
-const epsilonRate = binArrToDec(leastCommonValue);
-console.log({ count1, count0, mostCommonValue, gammaRate, leastCommonValue, epsilonRate, powerConsumption: gammaRate * epsilonRate });
-
 let oxygenRate, CO2Rate;
 {
   let filterIdx = 0;
