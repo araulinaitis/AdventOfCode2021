@@ -67,7 +67,6 @@ for (let row of inputData) {
       })
       .join('')
   );
-  // const sortedSignals = signals;
 
   // predefine unique numbers based on this row's letter jumble
   const digitMap = {
