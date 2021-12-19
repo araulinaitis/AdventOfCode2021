@@ -1,0 +1,85 @@
+import * as fs from 'fs/promises';
+import Cell from './Cell.js';
+
+// let inputData = (await fs.readFile('./data/input.csv', { encoding: 'UTF-8' })).split('\r\n').map(row => row.split('').map(val => parseInt(val)));
+// let inputData = (await fs.readFile('./data/testData.csv', { encoding: 'UTF-8' })).split('\r\n').map(row => row.split('').map(val => parseInt(val)));
+let inputData = (await fs.readFile('./data/testData2.csv', { encoding: 'UTF-8' })).split('\r\n').map(row => row.split('').map(val => parseInt(val)));
+// console.log(inputData);
+
+let startGrid = [];
+for (let [rowIdx, row] of inputData.entries()) {
+  let newRow = [];
+  for (let colIdx of row.keys()) {
+    newRow.push(new Cell(inputData, rowIdx, colIdx));
+  }
+  startGrid.push(newRow);
+}
+
+const numRows = startGrid.length;
+const numCols = startGrid[0].length;
+console.log({ numRows, numCols });
+const expansion = 5;
+
+let grid = [];
+for (let rowLoop = 0; rowLoop < expansion; ++rowLoop) {
+  for (let row of startGrid) {
+    let newRow = [];
+    for (let colLoop = 0; colLoop < expansion; ++colLoop) {
+      for (let cell of row) {
+        newRow.push(cell.expandGrid(rowLoop, colLoop, numRows, numCols));
+      }
+    }
+    grid.push(newRow);
+  }
+}
+
+// console.log(grid.map(row => row.map(cell => cell.risk)));
+console.log(grid.length, grid[0].length);
+
+// while (true)
+grid[grid.length - 1][grid[0].length - 1].isEnd = true;
+grid[0][0].risk = 0;
+
+for (let row of grid) {
+  for (let cell of row) {
+    cell.populateAdjacents(grid);
+  }
+}
+// let allDone = false;
+// while (!allDone) {
+//   allDone = true;
+  // for (let row of grid) {
+  // for (let cell of row) {
+  for (let rowIdx = grid.length - 1; rowIdx >= 0; --rowIdx) {
+    const thisRow = grid[rowIdx];
+    for (let colIdx = thisRow.length - 1; colIdx >= 0; --colIdx) {
+      const cell = thisRow[colIdx];
+      // if (!cell.bestPath) {
+      //   allDone = false;
+      // }
+      cell.findBestPath();
+    }
+  }
+  console.log(grid.map(row => row.map(cell => (cell.bestPath ? 1 : 0)).reduce((prev, cur) => prev + cur)).reduce((prev, cur) => prev + cur));
+  // if (grid.map(row => row.map(cell => (cell.bestPath ? 1 : 0)).reduce((prev, cur) => prev + cur)).reduce((prev, cur) => prev + cur) === 17) {
+  //   console.log(grid.map(row => row.map(cell => cell.bestPath ? 1 : 0)));
+  //   break;
+  // }
+// }
+// console.log(grid[0][0]);
+console.log({ bestRisk: grid[0][0].bestPath.risk });
+console.log(grid[0][0]?.bestPath?.cells?.map(cell => cell?.risk));
+// console.log(grid.map(row => row.map(cell => toFixed(cell?.bestPath?.risk, 3))));
+
+// await fs.writeFile('./out.csv', grid.map(row => row.map(cell => cell?.bestPath?.risk?.toString())?.join(','))?.join('\n'));
+await fs.writeFile('./out.csv', grid.map(row => row.map(cell => cell?.risk?.toString())?.join(','))?.join('\n'));
+
+function toFixed(val, length) {
+  let str = '';
+  const startLength = val?.toString().length;
+  for (let extraIdx = 0; extraIdx < (length - startLength); ++extraIdx) {
+    str += '0';
+  }
+  str += val?.toString();
+  return str;
+}
