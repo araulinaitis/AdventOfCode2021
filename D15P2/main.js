@@ -64,17 +64,6 @@ while (!allDone) {
   console.log('cells with best path: ', grid.map(row => row.map(cell => (cell.bestPath ? 1 : 0)).reduce((prev, cur) => prev + cur)).reduce((prev, cur) => prev + cur));
 }
 
-// let allDone = false;
-// while (!allDone) {
-//   allDone = true;
-//   for (let row of grid) {
-//     for (let cell of row) {
-//       if (!cell.bestPath) allDone = false;
-//       cell.findBestPath();
-//     }
-//   }
-//   console.log('cells with best path: ', grid.map(row => row.map(cell => (cell.bestPath ? 1 : 0)).reduce((prev, cur) => prev + cur)).reduce((prev, cur) => prev + cur));
-// }
 
 console.log(grid[0][0].bestPath.risk);
 
@@ -84,7 +73,6 @@ while (!allVerified) {
   allVerified = true;
   for (let row of grid) {
     for (let cell of row) {
-      // if (!cell.trueBestPath) allVerified = false;
       const stayedSame = cell.verifyBestPath();
       allVerified = stayedSame && allVerified;
     }

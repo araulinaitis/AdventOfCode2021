@@ -55,11 +55,9 @@ export default class Cell {
   }
 
   verifyBestPath() { 
-    // if (this.trueBestPath) return;
     // if adding this cell to any adjacent makes it worse than the current path, this is the best current path
     let isBestPath = true;
     for (let neighbor of this.adjacentCells) {
-      // console.log(this.bestPath.risk, neighbor.bestPath.risk + this.risk);
       if (neighbor.bestPath.risk + this.risk < this.bestPath.risk) {
         isBestPath = false;
         this.bestPath = { cells: [this, ...neighbor.bestPath.cells], risk: this.risk + neighbor.bestPath.risk };
@@ -67,7 +65,6 @@ export default class Cell {
     }
 
     this.trueBestPath = isBestPath;
-    // if (isBestPath) {console.log(this)}
     return isBestPath;
   }
 
