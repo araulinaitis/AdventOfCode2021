@@ -39,7 +39,6 @@ inputData = inputData
   .map(char => hexMap[char])
   .join('');
 
-// console.log({inputData});
 parsePacket(inputData);
 
 function parsePacket(data) {
@@ -54,12 +53,9 @@ function parsePacket(data) {
   data = packetTypeIdInfo.data;
   console.log({ packetTypeId });
   const res = packetTypeFunctions?.[packetTypeId](data);
-  // console.log(packetVersion, packetTypeId, output, data);
   console.log(res);
   return { output: res.output, data: res.data };
 }
-
-// console.log(packetVersion, packetTypeId, output, inputData);
 
 function parseOperator(data) {
   console.log('parsing Operator Packet');
@@ -128,7 +124,6 @@ function parsePacketedNumber(data) {
 
 function sum(data) {
   const { output, data: paredData } = parseOperator(data);
-  console.log(output);
   console.log(`Parsing sum of ${binToDec(output[0])} and ${binToDec(output[1])}`);
   return { output: output.map(str => binToDec(str)).reduce((prev, cur) => prev + cur), data: paredData };
 }
