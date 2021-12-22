@@ -165,7 +165,7 @@ function equalTo(data) {
 }
 
 function binToDec(binStr) {
-  if (!binStr) return null;
+  if (!binStr) return 0;
   if (typeof binStr === 'number') return binStr
   let val = 0;
   let idx = binStr.length - 1;
