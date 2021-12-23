@@ -1,19 +1,19 @@
 import * as fs from 'fs/promises';
 
 
-let inputData = Object.fromEntries(
-  (await fs.readFile('./data/input.csv', { encoding: 'UTF-8' }))
-    .split('target area: ')[1]
-    .split(', ')
-    .map(axis => axis.split('='))
-);
-
 // let inputData = Object.fromEntries(
-//   (await fs.readFile('./data/testData.csv', { encoding: 'UTF-8' }))
+//   (await fs.readFile('./data/input.csv', { encoding: 'UTF-8' }))
 //     .split('target area: ')[1]
 //     .split(', ')
 //     .map(axis => axis.split('='))
 // );
+
+let inputData = Object.fromEntries(
+  (await fs.readFile('./data/testData.csv', { encoding: 'UTF-8' }))
+    .split('target area: ')[1]
+    .split(', ')
+    .map(axis => axis.split('='))
+);
 // console.log(inputData);
 
 for (let [key, val] of Object.entries(inputData)) {
@@ -26,8 +26,8 @@ console.log(inputData);
 
 const minXSpeed = 1;
 const maxXSpeed = inputData.x.max + 1; // if we go this fast we'll be beyond the end of the zone after one tick
-const minYSpeed = inputData.y.min + 1;
-const maxYSpeed = 1000;
+const minYSpeed = inputData.y.min - 1;
+const maxYSpeed = 1000000;
 
 const goodSpeeds = [];
 let maxYs = [];
@@ -46,6 +46,8 @@ for (let xSpeed = maxXSpeed; xSpeed >= minXSpeed; --xSpeed) {
     if (isInTarget(state)) {
     goodSpeeds.push({ xSpeed, ySpeed });
     maxYs.push(thisBestY);
+    console.log(goodSpeeds);
+    console.log(Math.max(...maxYs));
     }
   }
 }
