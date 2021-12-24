@@ -8,22 +8,41 @@ let inputData = (await fs.readFile('./data/input.csv', { encoding: 'UTF-8' }))
 //   .map(row=> row.split('').map(char => (!isNaN(parseInt(char)) ? parseInt(char) : char)));
 // console.log(inputData);
 
-let sum = inputData[0];
-console.log(sum.join(''));
-let nextIdx = 1;
-while (nextIdx < inputData.length) {
-  console.log(`Adding ${sum.join('')} and ${inputData[nextIdx].join('')}`);
-  sum = addNumbers(sum, inputData[nextIdx]);
-  console.log({currentSum: sum.join('')});
-  let didChange = true;
-  while (didChange) {
-    ({ data: sum, didChange } = reduce(sum));
+let bestMagnitude = -Infinity;
+for (let firstRowIdx = 0; firstRowIdx < inputData.length; ++firstRowIdx) {
+  for (let secondRowIdx = 0; secondRowIdx < inputData.length; ++secondRowIdx) {
+    if (firstRowIdx === secondRowIdx) continue;
+    let sum = addNumbers(inputData[firstRowIdx], inputData[secondRowIdx]);
+
+    let didChange = true;
+    while (didChange) {
+      ({ data: sum, didChange } = reduce(sum));
+    }
+    console.log({sum: sum.join('')});
+
+    const magnitude = finalSum(sum);
+    console.log({magnitude});
+    if (magnitude > bestMagnitude) bestMagnitude = magnitude;
   }
-  nextIdx++;
-  console.log(`reduced sum: ${sum.join('')}`);
 }
 
-finalSum(sum);
+console.log(bestMagnitude);
+// let sum = inputData[0];
+// console.log(sum.join(''));
+// let nextIdx = 1;
+// while (nextIdx < inputData.length) {
+//   console.log(`Adding ${sum.join('')} and ${inputData[nextIdx].join('')}`);
+//   sum = addNumbers(sum, inputData[nextIdx]);
+//   console.log({currentSum: sum.join('')});
+//   let didChange = true;
+//   while (didChange) {
+//     ({ data: sum, didChange } = reduce(sum));
+//   }
+//   nextIdx++;
+//   console.log(`reduced sum: ${sum.join('')}`);
+// }
+
+// finalSum(sum);
 
 function finalSum(data) {
   let numberPairs = ['dummy'];
@@ -38,7 +57,11 @@ function finalSum(data) {
     }
     console.log(data.join(''));
   }
+  return parseInt(data.join(''));
 }
+
+// const res = parseReducedString(inputData);
+// console.log(res);
 
 function addNumbers(num1, num2) {
   return ['[', ...num1, ',', ...num2, ']'];
@@ -54,6 +77,7 @@ function reduce(data) {
     if (depth > 4) {
       console.log({ char, charIdx });
       let nextNumberIdx = findRightNumber(data, charIdx);
+      // while (data[nextNumberIdx + 1] !== ',' && typeof data[nextNumberIdx + 2] !== 'number' && nextNumberIdx < data.length) nextNumberIdx = findRightNumber(data, nextNumberIdx);
       if (nextNumberIdx) {
         data = explode(data, nextNumberIdx);
         depth--;
@@ -81,6 +105,7 @@ function reduce(data) {
 }
 
 function explode(data, index) {
+  // check if this number is dual-digit
   const thisNum = data[index];
   const rightNumIdx = index + 2;
   const nextNum = data[rightNumIdx];
@@ -119,9 +144,4 @@ function findLeftNumber(data, index) {
 function findRightNumber(data, index) {
   while (typeof data[index] !== 'number' && index <= data.length - 1) index++;
   return index === data.length ? null : index;
-}
-
-function addDuplet(str) {
-  console.log(str);
-  return (parseInt(str[0]) + parseInt(str[1])).toString();
 }
