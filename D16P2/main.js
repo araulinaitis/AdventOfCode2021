@@ -1,7 +1,7 @@
 import * as fs from 'fs/promises';
 
-let inputData = await fs.readFile('./data/input.csv', { encoding: 'UTF-8' });
-// let inputData = await fs.readFile('./data/testData.csv', { encoding: 'UTF-8' });
+// let inputData = await fs.readFile('./data/input.csv', { encoding: 'UTF-8' });
+let inputData = await fs.readFile('./data/testData.csv', { encoding: 'UTF-8' });
 // console.log(inputData);
 
 const hexMap = {
