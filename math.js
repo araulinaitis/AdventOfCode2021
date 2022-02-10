@@ -105,3 +105,8 @@ export function findPlaneIntersectionOfLine(plane, line) {
 
   return vectorAdd(l0, vectorScale(l, d));
 }
+
+export function calculatePlanePointNormalDistance(plane, point) {
+  const planePoint = findPlaneIntersectionOfLine(plane, {point, dir: plane.dir});
+  return calculatePointDistance(point, planePoint);
+}

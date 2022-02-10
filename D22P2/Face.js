@@ -7,19 +7,33 @@ import {
   vectorNormalize,
   vectorSubtract,
   calculatePointMidpoint,
+  vectorScale,
 } from '../math.js';
 
 export default class Face {
-  constructor(points, positiveVolume = true) {
+  constructor(points, positiveVolume = true, normal) {
     // points in ccw order
     this.points = points;
     this.positiveVolume = positiveVolume;
     if (!positiveVolume) {
       this.points.reverse();
-      // this.normal = vectorScale(this.normal, -1, -1, -1);
     }
-    this.normal = vectorNormalize(vectorCrossProduct(vectorSubtract(points[1], points[0]), vectorSubtract(points[2], points[0])));
+    if (positiveVolume) {
+      this.normal = normal ?? vectorNormalize(vectorCrossProduct(vectorSubtract(points[1], points[0]), vectorSubtract(points[2], points[0])));
+    } else {
+      this.normal = normal ? vectorScale(normal, -1) : vectorNormalize(vectorCrossProduct(vectorSubtract(points[1], points[0]), vectorSubtract(points[2], points[0])));
+    }
     this.midpoint = calculatePointMidpoint(this.points[0], this.points[2]);
+    this.minX = Math.min(...points.map(point => point.x));
+    this.minY = Math.min(...points.map(point => point.y));
+    this.minZ = Math.min(...points.map(point => point.z));
+    this.maxX = Math.max(...points.map(point => point.x));
+    this.maxY = Math.max(...points.map(point => point.y));
+    this.maxZ = Math.max(...points.map(point => point.z));
+
+    if (Math.abs(this.normal.x) < FLOAT_MATCH_THRESHOLD && Math.abs(this.normal.y) < FLOAT_MATCH_THRESHOLD && Math.abs(this.normal.z) < FLOAT_MATCH_THRESHOLD) {
+      console.log(this);
+    }
   }
 
   checkIntersection(point) {
@@ -27,7 +41,6 @@ export default class Face {
     const plane = { point: this.points[0], dir: this.normal };
     if (this.isPointOnFace(point)) return true;
     if (Math.abs(vectorDotProduct(vectorNormalize(line.dir), vectorNormalize(plane.dir))) < FLOAT_MATCH_THRESHOLD) {
-      // console.log('early exit');
       return false;
     }
     if (this.points[0].x < line.point.x) return false;
@@ -39,7 +52,6 @@ export default class Face {
     // check the volume of the triangles created from all 4 points to the intersection point compared to the original face
     // if it's more, then the intersection is outside
 
-    // console.log({point, points: this.points, intersection})
     let thisArea = 0;
     thisArea += vectorMagnitude(vectorCrossProduct(vectorSubtract(this.points[1], this.points[0]), vectorSubtract(this.points[2], this.points[0]))) / 2;
     thisArea += vectorMagnitude(vectorCrossProduct(vectorSubtract(this.points[2], this.points[0]), vectorSubtract(this.points[3], this.points[0]))) / 2;
@@ -50,16 +62,18 @@ export default class Face {
     intersectArea += vectorMagnitude(vectorCrossProduct(vectorSubtract(this.points[2], intersection), vectorSubtract(this.points[3], intersection))) / 2;
     intersectArea += vectorMagnitude(vectorCrossProduct(vectorSubtract(this.points[3], intersection), vectorSubtract(this.points[0], intersection))) / 2;
 
-    // if(point.x == -44 && point.y == 21 && point.z == 35) {
-    //   console.log({point, points: this.points, intersection, thisArea, intersectArea, isIn: intersectArea < (thisArea + FLOAT_MATCH_THRESHOLD)})
-    // }
     return intersectArea < thisArea + FLOAT_MATCH_THRESHOLD;
   }
 
   isPointOnFace(point) {
-    const pointVec = vectorSubtract(point, this.points[0]);
-    const dotProduct = vectorDotProduct(pointVec, this.normal);
-    return Math.abs(dotProduct) < FLOAT_MATCH_THRESHOLD;
+    return (
+      point.x >= this.minX - FLOAT_MATCH_THRESHOLD &&
+      point.x <= this.maxX + FLOAT_MATCH_THRESHOLD &&
+      point.y >= this.minY - FLOAT_MATCH_THRESHOLD &&
+      point.y <= this.maxY + FLOAT_MATCH_THRESHOLD &&
+      point.z >= this.minZ - FLOAT_MATCH_THRESHOLD &&
+      point.z <= this.maxZ + FLOAT_MATCH_THRESHOLD
+    );
   }
 
   isCoincident(plane) {
@@ -70,15 +84,10 @@ export default class Face {
   }
 
   printAsObj() {
-    return this.positiveVolume ? `f ${this.points[0].globalIdx + 1} ${this.points[1].globalIdx + 1} ${this.points[2].globalIdx + 1} ${this.points[3].globalIdx + 1}\n` : '';
+    return this.positiveVolume ? `f ${this.points[0].globalIdx} ${this.points[1].globalIdx} ${this.points[2].globalIdx} ${this.points[3].globalIdx}\n` : '';
   }
 
   printAsObjSolo() {
-    return `f ${this.points[0].localIdx + 1} ${this.points[1].localIdx + 1} ${this.points[2].localIdx + 1} ${this.points[3].localIdx + 1}\n`;
-  }
-
-  includesPoint(point) {
-    const vec = vectorNormalize(vectorSubtract(point, this.points[0]));
-    return Math.abs(vectorDotProduct(vec, this.normal) < FLOAT_MATCH_THRESHOLD);
+    return `f ${this.points[0].localIdx} ${this.points[1].localIdx} ${this.points[2].localIdx} ${this.points[3].localIdx}\n`;
   }
 }

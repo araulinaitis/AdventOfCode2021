@@ -10,8 +10,7 @@ export default class Edge {
   intersectPlane(plane) {
     if (Math.abs(vectorDotProduct(vectorNormalize(plane.dir), vectorNormalize(this.dir))) < FLOAT_MATCH_THRESHOLD) return null;
     const iSectPoint = findPlaneIntersectionOfLine(plane, { point: this.points[0], dir: this.dir });
-    // console.log({iSectPoint});
-    return this.isOnEdge(iSectPoint) ? iSectPoint : null;
+    return this.isOnEdge(iSectPoint) ? {x: Math.round(iSectPoint.x), y: Math.round(iSectPoint.y), z: Math.round(iSectPoint.z)} : null;
   }
 
   isOnEdge(point) {
